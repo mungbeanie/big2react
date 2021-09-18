@@ -1,10 +1,11 @@
 import Header from "./Components/Header/Header";
+import MainArea from "./Components/Main/MainArea";
 
 const App = () => {
   return (
     <main className="main">
       <Header />
-      <p>hello</p>
+      <MainArea />
       <footer className="footer"></footer>
     </main>
   );
