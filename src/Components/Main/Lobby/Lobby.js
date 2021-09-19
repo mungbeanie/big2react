@@ -1,12 +1,15 @@
 import { useRef } from "react";
-import { useUserStore } from "../../../Stores/stores";
+import { useUserStore, useSocketStore } from "../../../Stores/stores";
 
 const Lobby = () => {
   const usernameRef = useRef("");
   const userStore = useUserStore();
+  const socketStore = useSocketStore();
+
   const submit = (event) => {
     event.preventDefault();
     userStore.setUsername(usernameRef.current);
+    socketStore.establishSocket();
   };
 
   return (

@@ -1,9 +1,11 @@
 import Game from "./Game/Game";
 import Lobby from "./Lobby/Lobby";
-import { useUserStore } from "../../Stores/stores";
+import { useUserStore, useSocketStore } from "../../Stores/stores";
 
 const MainArea = () => {
   const userStore = useUserStore();
-  return <>{userStore.username ? <Game /> : <Lobby />}</>;
+  const socketStore = useSocketStore();
+
+  return <>{userStore.username && socketStore.socket ? <Game /> : <Lobby />}</>;
 };
 export default MainArea;

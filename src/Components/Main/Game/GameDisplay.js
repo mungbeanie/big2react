@@ -10,7 +10,15 @@ const GameDisplay = ({ cards }) => {
     border: 1px black solid;
   `;
 
-  return gameStore.deck.cards.map((card) => <cardStyle>{card.suit}</cardStyle>);
+  // return gameStore.deck.cards.map((card) => <cardStyle>{card.suit}</cardStyle>);
+  return (
+    <>
+      <h1>connected:</h1>
+      {Object.keys(gameStore.players).map((id) => (
+        <p>{gameStore.players[id].username}</p>
+      ))}
+    </>
+  );
 };
 
 export default GameDisplay;
