@@ -3,8 +3,6 @@ import { mountStoreDevtool } from "simple-zustand-devtools";
 
 import { io } from "socket.io-client";
 
-import Deck from "../CardDeck/CardDeck";
-
 // socket
 const ENDPOINT = "http://localhost:5000";
 const socketOptions = { transports: ["websocket", "polling"] };
@@ -20,14 +18,16 @@ export const useSocketStore = create((set, get) => ({
 
 export const useGameStore = create((set, get) => ({
   userTurn: "",
-  playedCard: "",
-  players: {},
-  updatePlayers: (players) => set(() => ({ players: players })),
+  lastPlayedCard: "",
+  status: "waiting", // waiting | ready | active | disconnected
+  players: [],
+  setState: (key, value) => set(() => ({ [key]: value })),
 }));
 
 export const useUserStore = create((set, get) => ({
   username: "",
-  setUsername: (username) => set(() => ({ username: username })),
+  readyStatus: "waiting", // waiting | ready | active | disconnected
+  setState: (key, value) => set(() => ({ [key]: value })),
 }));
 
 if (process.env.NODE_ENV === "development") {

@@ -1,11 +1,27 @@
-import { useGameStore } from "../../../Stores/stores";
+import {
+  useGameStore,
+  useSocketStore,
+  useUserStore,
+} from "../../../Stores/stores";
 
-const GameButtons = ({ deck }) => {
+const GameButtons = () => {
   const gameStore = useGameStore();
+  const socketStore = useSocketStore();
+  const userStore = useUserStore();
 
   return (
     <>
-      <button onClick={() => gameStore.shuffleDeck()}>Shuffle</button>
+      {gameStore.status === "waiting" && userStore.readyStatus === "waiting" && (
+        <button
+          onClick={() => {
+            socketStore.socket.emit("player_status", "ready", (response) => {
+              userStore.setState("readyStatus", response);
+            });
+          }}
+        >
+          Play
+        </button>
+      )}
     </>
   );
 };

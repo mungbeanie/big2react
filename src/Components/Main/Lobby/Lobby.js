@@ -8,7 +8,8 @@ const Lobby = () => {
 
   const submit = (event) => {
     event.preventDefault();
-    userStore.setUsername(usernameRef.current);
+    // userStore.setUsername(usernameRef.current);
+    userStore.setState("username", usernameRef.current);
     socketStore.establishSocket();
   };
 

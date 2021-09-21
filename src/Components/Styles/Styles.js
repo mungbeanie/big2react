@@ -7,6 +7,7 @@ const colour_palette = {
 
 export const Button = styled.button`
   color: ${colour_palette.primary};
+  background-color: white;
   font-size: 1em;
   padding: 0.25em 1em;
   border: black 1px solid;

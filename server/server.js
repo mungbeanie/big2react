@@ -10,6 +10,19 @@ app.use(cors());
 // game setup
 let players = {};
 
+const getKeyFromObj = (key, players_object) => {
+  return Object.values(players_object).map((players) => players[key]);
+};
+
+const playerReadyObj = (players_object) => {
+  // username: { ready_status: ?? }
+  let obj = [];
+  obj = Object.keys(players_object).map((players) => {
+    return players_object[players];
+  });
+  return obj;
+};
+
 // socket connections
 io.on("connection", (socket) => {
   console.log(`${socket.id} connected`);
@@ -20,19 +33,32 @@ io.on("connection", (socket) => {
       players[socket.id] = {
         id: socket.id,
         username: name,
+        ready_status: "waiting",
       };
       console.log(`[PLAYERS] ${JSON.stringify(players)}`);
 
       socket.emit("login", {
         player: players[socket.id],
-        players: players,
+        players: getKeyFromObj("username", players),
       });
 
       socket.broadcast.emit("player_joined", {
         player: players[socket.id],
-        players: players,
+        players: getKeyFromObj("username", players),
       });
     }
+    playerReadyObj(players);
+  });
+
+  socket.on("player_status", (value, callback) => {
+    console.log("player_status");
+    players[socket.id] = {
+      ...players[socket.id],
+      ready_status: value,
+    };
+    callback(value);
+    // socket.broadcast.emit("player_status", { username: ready_status);
+    console.log(`[PLAYERS] ${JSON.stringify(players)}`);
   });
 
   socket.on("disconnect", () => {
