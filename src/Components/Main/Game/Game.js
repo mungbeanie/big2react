@@ -1,11 +1,19 @@
-import GameButtons from "./GameButtons";
-import GameDisplay from "./GameDisplay";
+import { useEffect } from "react";
+
 import {
   useUserStore,
   useSocketStore,
   useGameStore,
 } from "../../../Stores/stores";
-import { useEffect } from "react";
+
+import styled from "styled-components";
+
+import GameButtons from "./GameButtons";
+import GameDisplay from "./GameDisplay";
+
+const LoggedInSpan = styled.span`
+  padding: 0 0.5rem;
+`;
 
 const Game = () => {
   const userStore = useUserStore();
@@ -56,10 +64,12 @@ const Game = () => {
     <>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <div>
-          <span>Logged in as:{userStore.username}</span>
-          <span>{userStore.readyStatus}</span>
+          <LoggedInSpan>
+            Logged in as:<LoggedInSpan>{userStore.username}</LoggedInSpan>
+          </LoggedInSpan>
+          <LoggedInSpan>{userStore.readyStatus}</LoggedInSpan>
         </div>
-        {gameStore.status !== "in-game" && (
+        {(gameStore.status === "waiting" || gameStore.status === "ready") && (
           <div>
             <GameButtons />
           </div>

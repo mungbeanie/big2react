@@ -7,11 +7,14 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
+const { Deck } = require("../src/CardDeck/CardDeck");
+const deck = new Deck();
+
 // game setup
 // socket_id: {username, ready_status, action}
 let connected_sockets = {};
 let game = {
-  status: "waiting", // waiting | ready | in-game
+  status: "waiting", // waiting | ready | game_init | game_active | game_end
   whose_turn: null,
   last_played_card: null,
 };
@@ -78,14 +81,20 @@ io.on("connection", (socket) => {
 
   socket.on("update_game_status", (value) => {
     console.log("update_game_status");
-    if (value === "ready") {
-      game = {
-        ...game,
-        status: "in-game",
-      };
-      io.emit("return_game_status", {
-        game: game,
-      });
+    switch (value) {
+      case "ready":
+        game = {
+          ...game,
+          status: "game_init",
+        };
+        io.emit("return_game_status", {
+          game: game,
+        });
+        deck.shuffle();
+        console.log(deck);
+        break;
+      default:
+        break;
     }
   });
 

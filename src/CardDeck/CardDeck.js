@@ -15,7 +15,7 @@ const VALUES = [
   "K",
 ];
 
-export default class Deck {
+class Deck {
   constructor(cards = freshDeck()) {
     this.cards = cards;
   }
@@ -61,3 +61,9 @@ function freshDeck() {
     });
   });
 }
+
+module.exports = {
+  Deck,
+  Card,
+  freshDeck,
+};
