@@ -14,9 +14,11 @@ const GameDisplay = ({ cards }) => {
   return (
     <>
       <h1>connected:</h1>
-      {gameStore.players.map((name) => (
-        <div key={name}>
-          <span>{name}</span>
+
+      {Object.keys(gameStore.players).map((player_id) => (
+        <div key={player_id}>
+          <span>{gameStore.players[player_id].username}</span>
+          <span>{gameStore.players[player_id].ready_status}</span>
         </div>
       ))}
     </>

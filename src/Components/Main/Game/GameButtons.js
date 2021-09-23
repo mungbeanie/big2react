@@ -11,12 +11,27 @@ const GameButtons = () => {
 
   return (
     <>
-      {gameStore.status === "waiting" && userStore.readyStatus === "waiting" && (
+      <button
+        onClick={() => {
+          socketStore.socket.emit(
+            "update_player_status",
+            userStore.readyStatus === "ready" ? "waiting" : "ready",
+            (response) => {
+              userStore.setState(
+                "readyStatus",
+                response.players[userStore.id].ready_status
+              );
+              gameStore.setState("players", response.players);
+            }
+          );
+        }}
+      >
+        {userStore.readyStatus === "ready" ? "Unready" : "Ready"}
+      </button>
+      {gameStore.status === "ready" && (
         <button
           onClick={() => {
-            socketStore.socket.emit("player_status", "ready", (response) => {
-              userStore.setState("readyStatus", response);
-            });
+            socketStore.socket.emit("update_game_status", "ready");
           }}
         >
           Play

@@ -26,6 +26,7 @@ export const useGameStore = create((set, get) => ({
 
 export const useUserStore = create((set, get) => ({
   username: "",
+  id: "",
   readyStatus: "waiting", // waiting | ready | active | disconnected
   setState: (key, value) => set(() => ({ [key]: value })),
 }));

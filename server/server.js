@@ -8,67 +8,97 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 
 // game setup
-let players = {};
-
-const getKeyFromObj = (key, players_object) => {
-  return Object.values(players_object).map((players) => players[key]);
-};
-
-const playerReadyObj = (players_object) => {
-  // username: { ready_status: ?? }
-  let obj = [];
-  obj = Object.keys(players_object).map((players) => {
-    return players_object[players];
-  });
-  return obj;
+// socket_id: {username, ready_status, action}
+let connected_sockets = {};
+let game = {
+  status: "waiting", // waiting | ready | in-game
+  whose_turn: null,
+  last_played_card: null,
 };
 
 // socket connections
 io.on("connection", (socket) => {
   console.log(`${socket.id} connected`);
 
-  socket.on("add_player", (name) => {
-    if (Object.keys(players).length <= 4) {
+  socket.emit("test");
+
+  socket.on("add_player", (name, callback) => {
+    if (Object.keys(connected_sockets).length <= 4) {
       console.log(`[ADD PLAYER] ${socket.id} username: ${name}`);
-      players[socket.id] = {
-        id: socket.id,
+      connected_sockets[socket.id] = {
         username: name,
         ready_status: "waiting",
+        action: null,
       };
-      console.log(`[PLAYERS] ${JSON.stringify(players)}`);
+      callback(socket.id);
+      console.log(`[PLAYERS] ${JSON.stringify(connected_sockets)}`);
 
-      socket.emit("login", {
-        player: players[socket.id],
-        players: getKeyFromObj("username", players),
-      });
-
-      socket.broadcast.emit("player_joined", {
-        player: players[socket.id],
-        players: getKeyFromObj("username", players),
+      io.emit("player_joined", {
+        player: connected_sockets[socket.id],
+        players: connected_sockets,
       });
     }
-    playerReadyObj(players);
   });
 
-  socket.on("player_status", (value, callback) => {
+  socket.on("update_player_status", (value, callback) => {
     console.log("player_status");
-    players[socket.id] = {
-      ...players[socket.id],
+    connected_sockets[socket.id] = {
+      ...connected_sockets[socket.id],
       ready_status: value,
     };
-    callback(value);
-    // socket.broadcast.emit("player_status", { username: ready_status);
-    console.log(`[PLAYERS] ${JSON.stringify(players)}`);
+    callback({ players: connected_sockets });
+
+    io.emit("return_player_status", {
+      players: connected_sockets,
+    });
+
+    const connected_player_keys = Object.keys(connected_sockets);
+    let game_status = "waiting";
+    if (
+      connected_player_keys.length >= 2 &&
+      connected_player_keys.length <= 4 &&
+      connected_player_keys.every(
+        (id) => connected_sockets[id].ready_status === "ready"
+      )
+    ) {
+      console.log("game is ready");
+      game_status = "ready";
+    }
+    game = {
+      ...game,
+      status: game_status,
+    };
+
+    io.emit("return_game_status", {
+      game: game,
+    });
+
+    console.log(`[PLAYERS] ${JSON.stringify(connected_sockets)}`);
+  });
+
+  socket.on("update_game_status", (value) => {
+    console.log("update_game_status");
+    if (value === "ready") {
+      game = {
+        ...game,
+        status: "in-game",
+      };
+      io.emit("return_game_status", {
+        game: game,
+      });
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log(`${socket.id} ${players[socket.id].username} disconnected`);
-    const disconnected_player = players[socket.id]; // so we can still notify who left
-    delete players[socket.id];
+    console.log(
+      `${socket.id} ${connected_sockets[socket.id].username} disconnected`
+    );
+    const disconnected_player = connected_sockets[socket.id]; // so we can still notify who left
+    delete connected_sockets[socket.id];
 
-    socket.broadcast.emit("player_left", {
+    io.emit("player_left", {
       player: disconnected_player,
-      players: players,
+      players: connected_sockets,
     });
   });
 });
