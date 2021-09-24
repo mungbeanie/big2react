@@ -23,24 +23,38 @@ const CardStyle = styled.span`
 `;
 
 const parseCard = (card) => {
-  const suit_index = card.indexOf(card.slice(-1));
-  const value = card.slice(0, suit_index);
+  const suit_value = card.slice(-1);
+  const suit_index = card.indexOf(suit_value);
+  let value = card.slice(0, suit_index);
   let suit;
   let colour;
 
-  if (card.includes("s")) {
+  // suits
+  if (suit_value === "s") {
     suit = "♠";
     colour = "black";
-  } else if (card.includes("c")) {
+  } else if (suit_value === "c") {
     suit = "♣";
     colour = "black";
-  } else if (card.includes("h")) {
+  } else if (suit_value === "h") {
     suit = "♥";
     colour = "red";
   } else {
     suit = "♦";
     colour = "red";
   }
+
+  // values
+  if (value === "1") {
+    value = "A";
+  } else if (value === "11") {
+    value = "J";
+  } else if (value === "12") {
+    value = "Q";
+  } else if (value === "13") {
+    value = "K";
+  }
+
   return { value: value, suit: suit, colour: colour };
 };
 
