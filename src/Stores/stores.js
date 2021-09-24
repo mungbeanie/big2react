@@ -17,17 +17,25 @@ export const useSocketStore = create((set, get) => ({
 }));
 
 export const useGameStore = create((set, get) => ({
-  userTurn: "",
-  lastPlayedCard: "",
-  status: "waiting", // waiting | ready | active | disconnected
-  players: [],
+  clientIds: [],
+  players: {},
+  startGame: false,
+  currentPlayer: "",
+  lastPlayed: { player: "", cards: [] },
   setState: (key, value) => set(() => ({ [key]: value })),
+  updateState: (payload) =>
+    set(() => ({
+      clientIds: payload.gameState.clientIds,
+      players: payload.gameState.players,
+      startGame: payload.gameState.startGame,
+      currentPlayer: payload.gameState.currentPlayer,
+      lastPlayed: payload.gameState.lastPlayed,
+    })),
 }));
 
 export const useUserStore = create((set, get) => ({
   username: "",
   id: "",
-  readyStatus: "waiting", // waiting | ready | active | disconnected
   setState: (key, value) => set(() => ({ [key]: value })),
 }));
 

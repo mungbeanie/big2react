@@ -27,36 +27,14 @@ const Game = () => {
   }, []);
 
   useEffect(() => {
-    const playerJoinedListener = (data) => {
-      console.log(`${data.player.username} joined`, data);
-      gameStore.setState("players", data.players);
-    };
-
-    const playerLeftListener = (data) => {
-      console.log(`${data.player.username} left`, data);
-      gameStore.setState("players", data.players);
-    };
-
-    const playerUpdateStatus = (data) => {
-      console.log(`playerUpdateStatus updated`, data);
-      gameStore.setState("players", data.players);
-    };
-
-    const gameStatus = (data) => {
+    const updateGameListener = (data) => {
       console.log(`game updated`, data);
-      gameStore.setState("status", data.game.status);
+      gameStore.updateState(data.payload);
     };
 
-    socketStore.socket.on("player_joined", playerJoinedListener);
-    socketStore.socket.on("player_left", playerLeftListener);
-    socketStore.socket.on("return_player_status", playerUpdateStatus);
-    socketStore.socket.on("return_game_status", gameStatus);
-
+    socketStore.socket.on("update_game", updateGameListener);
     return () => {
-      socketStore.socket.off("player_joined", playerJoinedListener);
-      socketStore.socket.off("player_left", playerLeftListener);
-      socketStore.socket.off("return_player_status", playerUpdateStatus);
-      socketStore.socket.off("return_game_status", gameStatus);
+      socketStore.socket.off("update_game", updateGameListener);
     };
   }, [socketStore.socket, gameStore]);
 
@@ -67,13 +45,10 @@ const Game = () => {
           <LoggedInSpan>
             Logged in as:<LoggedInSpan>{userStore.username}</LoggedInSpan>
           </LoggedInSpan>
-          <LoggedInSpan>{userStore.readyStatus}</LoggedInSpan>
         </div>
-        {(gameStore.status === "waiting" || gameStore.status === "ready") && (
-          <div>
-            <GameButtons />
-          </div>
-        )}
+        <div>
+          <GameButtons />
+        </div>
         <div>
           <GameDisplay />
         </div>
