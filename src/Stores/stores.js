@@ -26,7 +26,7 @@ export const useGameStore = create((set, get) => ({
   updateState: (payload) =>
     set(() => ({
       clientIds: payload.gameState.clientIds,
-      players: payload.gameState.players,
+      players: payload.gameState.players, // players = { username, cards, connected, pass};
       startGame: payload.gameState.startGame,
       currentPlayer: payload.gameState.currentPlayer,
       lastPlayed: payload.gameState.lastPlayed,

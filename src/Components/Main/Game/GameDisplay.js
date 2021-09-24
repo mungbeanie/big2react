@@ -1,4 +1,6 @@
 import { useGameStore } from "../../../Stores/stores";
+
+import ConnectedPlayers from "./ConnectedPlayers";
 import CardArea from "./CardArea";
 
 const GameDisplay = () => {
@@ -6,13 +8,7 @@ const GameDisplay = () => {
 
   return (
     <>
-      <h1>connected:</h1>
-      <ul>
-        {gameStore.clientIds.map((id) => (
-          <li key={id}>{gameStore.players[id].username}</li>
-        ))}
-      </ul>
-
+      <ConnectedPlayers />
       {gameStore.startGame && <CardArea />}
     </>
   );

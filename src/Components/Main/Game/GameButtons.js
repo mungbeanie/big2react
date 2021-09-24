@@ -1,8 +1,4 @@
-import {
-  useGameStore,
-  useSocketStore,
-  useUserStore,
-} from "../../../Stores/stores";
+import { useGameStore, useSocketStore } from "../../../Stores/stores";
 
 const GameButtons = () => {
   const gameStore = useGameStore();
