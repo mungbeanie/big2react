@@ -1,7 +1,19 @@
 const SUITS = ["s", "c", "h", "d"]; // spades, clubs, hearts, diamonds
-const VALUES = Array(13)
-  .fill()
-  .map((element, index) => index + 1);
+const VALUES = [
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "j",
+  "q",
+  "k",
+  "a",
+  "2",
+];
 
 class Deck {
   constructor(cards = freshDeck()) {
