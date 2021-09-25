@@ -40,6 +40,7 @@ io.on("connection", (socket) => {
       console.log(`[ADD PLAYER] ${socket.id} username: ${name}`);
       connectedSockets[socket.id] = {
         username: name,
+        id: socket.id,
         cards: [],
         connected: true,
         pass: false,
@@ -56,29 +57,37 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("update_game", (value) => {
-    console.log(value);
-    switch (value.type) {
-      case "start_game":
-        startGame = true;
-        deck2.shuffle();
-        const cardsToDeal = deck2.deal(clientIds);
-        clientIds.forEach((id) => {
-          connectedSockets[id] = {
-            ...connectedSockets[id],
-            cards: cardsToDeal[id],
-          };
-        });
-        io.emit("update_game", {
-          type: "update",
-          payload: {
-            gameState: getGameState(),
-          },
-        });
-        break;
-      default:
-        break;
+  socket.on("update_game", (payload) => {
+    console.log(payload);
+    if (payload.type === "start_game") {
+      startGame = true;
+      deck2.shuffle();
+      const cardsToDeal = deck2.deal(clientIds);
+      clientIds.forEach((id) => {
+        connectedSockets[id] = {
+          ...connectedSockets[id],
+          cards: cardsToDeal[id],
+        };
+      });
+    } else if (payload.type === "player_move") {
+      lastPlayed = {
+        player: payload.payload.player,
+        cards: payload.payload.cards,
+      }; // username or id?
+      deck2.discard(payload.payload.cards);
+      connectedSockets[[payload.payload.player]] = {
+        ...connectedSockets[payload.payload.player],
+        cards: connectedSockets[payload.payload.player].cards.filter(
+          (cards) => !payload.payload.cards.includes(cards)
+        ),
+      };
     }
+    io.emit("update_game", {
+      type: "update",
+      payload: {
+        gameState: getGameState(),
+      },
+    });
   });
 
   socket.on("disconnect", () => {

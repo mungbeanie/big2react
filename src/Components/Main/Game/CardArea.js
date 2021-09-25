@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import PlayerDisplay from "./PlayerDisplay";
 import { useGameStore } from "../../../Stores/stores";
+import Card from "./Card";
 
 const CardAreaHeader = styled.div`
   font-weight: bold;
@@ -19,6 +20,14 @@ const CardAreaSurface = styled.div`
   justify-content: space-between;
 `;
 
+const JustPlayedContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+`;
+
 const CardArea = () => {
   const gameStore = useGameStore();
 
@@ -26,6 +35,17 @@ const CardArea = () => {
     <>
       <CardAreaSurface>
         <CardAreaHeader>Card Area</CardAreaHeader>
+        {gameStore.lastPlayed.player && (
+          <>
+            <CardAreaHeader>Just Played:</CardAreaHeader>
+            {gameStore.players[gameStore.lastPlayed.player].username}
+            <JustPlayedContainer>
+              {gameStore.lastPlayed.cards.map((card) => (
+                <Card key={card} card={card} isReadOnly />
+              ))}
+            </JustPlayedContainer>
+          </>
+        )}
         <div>
           {gameStore.clientIds.map((id) => (
             <PlayerDisplay player={gameStore.players[id]} />

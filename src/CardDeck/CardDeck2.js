@@ -15,6 +15,23 @@ const VALUES = [
   "2",
 ];
 
+const freshDeck = () => {
+  return SUITS.flatMap((suit) => {
+    return VALUES.map((value) => {
+      return `${value}${suit}`;
+    });
+  });
+};
+
+// const valid_moves = {
+//   // valid card combinations on amount of cards played
+//   1: freshDeck(),
+//   2: [],
+//   3: [],
+//   4: [],
+//   5: [],
+// };
+
 class Deck {
   constructor(cards = freshDeck()) {
     this.cards = cards;
@@ -66,15 +83,12 @@ class Deck {
     }
     return this.cards;
   }
-}
 
-const freshDeck = () => {
-  return SUITS.flatMap((suit) => {
-    return VALUES.map((value) => {
-      return `${value}${suit}`;
-    });
-  });
-};
+  checkIsValidMove(played_card_array) {
+    // played cards are still in the deck and not discarded
+    played_card_array.every((played_card) => this.cards.includes(played_card));
+  }
+}
 
 module.exports = {
   Deck,

@@ -15,19 +15,50 @@ const CardStyle = styled.span`
   color: ${(props) => props.suit_colour};
   transition: all 0.1s ease-out;
 
+  // selected
+  ${(props) =>
+    props.isSelected &&
+    `
+  background-color: blue;
+  transform: translateY(-5px);
+  `}
+
+  ${(props) =>
+    !props.isReadOnly &&
+    `
   :hover {
     background-color: black;
     color: white;
     transform: translateY(-5px);
     cursor: pointer;
-  }
+    };
+    `}
 `;
 
-const Card = ({ card }) => {
+const Card = ({
+  card,
+  isSelected,
+  selectedCards,
+  setSelectedCards,
+  isReadOnly,
+}) => {
+  const onClickHandler = () => {
+    if (isReadOnly) return;
+    selectedCards.includes(card)
+      ? setSelectedCards((state) =>
+          state.filter((card_value) => card_value !== card)
+        )
+      : setSelectedCards((state) => [...state, card]);
+  };
   return (
-    <CardStyle suit_colour={parseCard(card).colour}>{`${parseCard(card).value}${
-      parseCard(card).suit
-    }`}</CardStyle>
+    <CardStyle
+      suit_colour={parseCard(card).colour}
+      isSelected={isSelected}
+      isReadOnly={isReadOnly}
+      onClick={onClickHandler}
+    >
+      {`${parseCard(card).value}${parseCard(card).suit}`}
+    </CardStyle>
   );
 };
 
