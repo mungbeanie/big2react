@@ -4,8 +4,11 @@ import Card from "./Card";
 
 import { sortCards } from "./CardHelperFunctions";
 
-import { useSocketStore } from "../../../Stores/stores";
-import { useGameStore } from "../../../Stores/stores";
+import {
+  useSocketStore,
+  useGameStore,
+  useUserStore,
+} from "../../../Stores/stores";
 
 const PlayerContainer = styled.div`
   display: flex;
@@ -18,6 +21,7 @@ const PlayerContainer = styled.div`
 const PlayerDisplay = ({ player }) => {
   const socketStore = useSocketStore();
   const gameStore = useGameStore();
+  const userStore = useUserStore();
 
   const [sortType, setSortType] = useState("value");
   const [selectedCards, setSelectedCards] = useState([]);
@@ -29,22 +33,24 @@ const PlayerDisplay = ({ player }) => {
   return (
     <div>
       <p>{player.username}</p>
+      {gameStore.currentPlayer === userStore.username && <p>Your Turn</p>}
       <button onClick={() => setSortType("value")}>Sort by value</button>
       <button onClick={() => setSortType("suit")}>Sort by suit</button>
-      {selectedCards.length !== 0 && (
-        <div>
-          <button
-            onClick={() => {
-              socketStore.socket.emit("update_game", {
-                type: "player_move",
-                payload: { player: player.id, cards: selectedCards },
-              });
-            }}
-          >
-            Play
-          </button>
-        </div>
-      )}
+      {selectedCards.length !== 0 &&
+        gameStore.currentPlayer === userStore.username && (
+          <div>
+            <button
+              onClick={() => {
+                socketStore.socket.emit("update_game", {
+                  type: "player_move",
+                  payload: { player: player.id, cards: selectedCards },
+                });
+              }}
+            >
+              Play
+            </button>
+          </div>
+        )}
       <PlayerContainer>
         {sortCards(player.cards, sortType).map((card) => (
           <Card

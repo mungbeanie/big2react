@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import PlayerDisplay from "./PlayerDisplay";
-import { useGameStore } from "../../../Stores/stores";
+import { useGameStore, useUserStore } from "../../../Stores/stores";
 import Card from "./Card";
 
 const CardAreaHeader = styled.div`
@@ -30,6 +30,7 @@ const JustPlayedContainer = styled.div`
 
 const CardArea = () => {
   const gameStore = useGameStore();
+  const userStore = useUserStore();
 
   return (
     <>
@@ -47,9 +48,7 @@ const CardArea = () => {
           </>
         )}
         <div>
-          {gameStore.clientIds.map((id) => (
-            <PlayerDisplay player={gameStore.players[id]} />
-          ))}
+          <PlayerDisplay player={gameStore.players[userStore.id]} />
         </div>
       </CardAreaSurface>
     </>

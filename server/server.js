@@ -16,6 +16,7 @@ const deck2 = new Deck();
 
 let connectedSockets = {};
 let clientIds = [];
+let turnOrder = [];
 let startGame = false;
 let currentPlayer = "";
 let lastPlayed = { player: "", cards: [] };
@@ -69,18 +70,35 @@ io.on("connection", (socket) => {
           cards: cardsToDeal[id],
         };
       });
+      // set first player to be the one with 3 diamonds
+      currentPlayer = Object.values(connectedSockets).find((player) =>
+        player.cards.includes("3d")
+      ).username;
     } else if (payload.type === "player_move") {
       lastPlayed = {
         player: payload.payload.player,
         cards: payload.payload.cards,
       }; // username or id?
       deck2.discard(payload.payload.cards);
+      // updating cards for current player
       connectedSockets[[payload.payload.player]] = {
         ...connectedSockets[payload.payload.player],
         cards: connectedSockets[payload.payload.player].cards.filter(
           (cards) => !payload.payload.cards.includes(cards)
         ),
       };
+      // updating turn order
+      const currentPlayerId = Object.values(connectedSockets).find(
+        (player) => player.username === currentPlayer
+      ).id;
+      let currentPlayerIdIndex = clientIds.indexOf(currentPlayerId);
+      if (clientIds[currentPlayerIdIndex + 1]) {
+        currentPlayer =
+          connectedSockets[clientIds[currentPlayerIdIndex + 1]].username;
+      } else {
+        // end of array, go to first id
+        currentPlayer = connectedSockets[clientIds[0]].username;
+      }
     }
     io.emit("update_game", {
       type: "update",
