@@ -1,4 +1,4 @@
-const SUITS = ["s", "c", "h", "d"]; // spades, clubs, hearts, diamonds
+const SUITS = ["d", "c", "h", "s"]; // spades, clubs, hearts, diamonds
 const VALUES = [
   "3",
   "4",
@@ -21,6 +21,12 @@ const freshDeck = () => {
       return `${value}${suit}`;
     });
   });
+};
+
+const getCardSuit = (card) => card.slice(-1);
+const getCardValue = (card) => {
+  const suit_index = card.indexOf(getCardSuit(card));
+  return card.slice(0, suit_index);
 };
 
 // const valid_moves = {
@@ -66,11 +72,10 @@ class Deck {
     let dealt_cards_obj = {};
     const num_players = player_id_array.length;
     const card_amount_to_deal = Math.floor(this.numberOfCards / num_players);
-    const whole_deck = this.cards;
+    let working_deck = [...this.cards]; // shallow copy
     player_id_array.forEach((id) => {
-      dealt_cards_obj[id] = whole_deck.splice(0, card_amount_to_deal);
+      dealt_cards_obj[id] = working_deck.splice(0, card_amount_to_deal);
     });
-    this.discard(whole_deck);
     return dealt_cards_obj;
   }
 
@@ -84,9 +89,59 @@ class Deck {
     return this.cards;
   }
 
-  checkIsValidMove(played_card_array) {
+  checkPlayedIsInDeck(played_card_array) {
     // played cards are still in the deck and not discarded
-    played_card_array.every((played_card) => this.cards.includes(played_card));
+    return played_card_array.every((played_card) =>
+      this.cards.includes(played_card)
+    );
+  }
+
+  checkPlayedIsLarger(played_card_array, last_played_card_array) {
+    if (last_played_card_array.length) {
+      // not first move
+      if (last_played_card_array.length === played_card_array.length) {
+        const combo_length = last_played_card_array.length;
+        switch (combo_length) {
+          case 1:
+            if (
+              VALUES.indexOf(getCardValue(played_card_array[0])) <
+              VALUES.indexOf(getCardValue(last_played_card_array[0]))
+            ) {
+              return false;
+            }
+            // larger value
+            if (
+              VALUES.indexOf(getCardValue(played_card_array[0])) >
+              VALUES.indexOf(getCardValue(last_played_card_array[0]))
+            ) {
+              return true;
+            } else {
+              return SUITS.indexOf(getCardSuit(played_card_array[0])) <
+                SUITS.indexOf(getCardSuit(last_played_card_array[0]))
+                ? false
+                : true;
+            }
+          case 2:
+            break;
+          case 3:
+            break;
+          case 4:
+            break;
+          case 5:
+            break;
+          default:
+            return false;
+        }
+      }
+    }
+    return true; // first move
+  }
+
+  checkIsValidMove(played_card_array, last_played_card_array) {
+    return (
+      this.checkPlayedIsInDeck(played_card_array) &&
+      this.checkPlayedIsLarger(played_card_array, last_played_card_array)
+    );
   }
 }
 
