@@ -70,9 +70,9 @@ io.on("connection", (socket) => {
           cards: cardsToDeal[id],
         };
       });
-      // set first player to be the one with 3 diamonds
+      // set first player to be the one with lowest card
       currentPlayer = Object.values(connectedSockets).find((player) =>
-        player.cards.includes("3d")
+        player.cards.includes(deck2.getLowestCardInDeck())
       ).username;
       io.emit("update_game", {
         type: "update",
