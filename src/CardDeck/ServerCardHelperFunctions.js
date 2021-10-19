@@ -1,7 +1,7 @@
 // === card value order ===
 
-export const SUITS = ["d", "c", "h", "s"]; // spades, clubs, hearts, diamonds
-export const VALUES = [
+const SUITS = ["d", "c", "h", "s"]; // spades, clubs, hearts, diamonds
+const VALUES = [
   "3",
   "4",
   "5",
@@ -17,14 +17,14 @@ export const VALUES = [
   "2",
 ];
 
-export const getCardSuit = (card) => card.slice(-1);
-export const getCardValue = (card) => {
+const getCardSuit = (card) => card.slice(-1);
+const getCardValue = (card) => {
   const suit_index = card.indexOf(getCardSuit(card));
   return card.slice(0, suit_index);
 };
 
 // === card sorting functions ===
-export const sortByValue = (a, b) => {
+const sortByValue = (a, b) => {
   const a_obj = { value: getCardValue(a), suit: getCardSuit(a) };
   const b_obj = { value: getCardValue(b), suit: getCardSuit(b) };
   // sorting by using element order in array as lowest to highest values
@@ -42,7 +42,7 @@ export const sortByValue = (a, b) => {
   }
 };
 
-export const sortBySuit = (a, b) => {
+const sortBySuit = (a, b) => {
   const a_obj = { value: getCardValue(a), suit: getCardSuit(a) };
   const b_obj = { value: getCardValue(b), suit: getCardSuit(b) };
   // sorting by using element order in array as lowest to highest values
@@ -60,7 +60,7 @@ export const sortBySuit = (a, b) => {
   }
 };
 
-export const sortCards = (card_array, sort_type) => {
+const sortCards = (card_array, sort_type) => {
   const array_to_sort = card_array;
   let sort_function;
   if (sort_type === "value") {
@@ -72,7 +72,7 @@ export const sortCards = (card_array, sort_type) => {
 };
 
 // === card display functions ===
-export const parseCard = (card) => {
+const parseCard = (card) => {
   const suit_value = getCardSuit(card);
   let value = getCardValue(card);
   let suit;
@@ -98,16 +98,13 @@ export const parseCard = (card) => {
   return { value: value, suit: suit, colour: colour };
 };
 
-export const checkIsDuplicateValue = (played_card_array) => {
+const checkIsDuplicateValue = (played_card_array) => {
   // checking if all cards played are same value
   const value = getCardValue(played_card_array[0]); // compare to all to first value
   return played_card_array.every((card) => getCardValue(card) === value);
 };
 
-export const checkIfDuplicateValueInCombo = (
-  played_card_array,
-  num_of_duplicates
-) => {
+const checkIfDuplicateValueInCombo = (played_card_array, num_of_duplicates) => {
   const counts = {};
   played_card_array.forEach((card) => {
     counts[card] = (counts[card] || 0) + 1;
@@ -116,12 +113,8 @@ export const checkIfDuplicateValueInCombo = (
 };
 
 // === single card combos ====
-export const checkSingleCardCombo = (
-  played_card_array,
-  last_played_card_array
-) => {
+const checkSingleCardCombo = (played_card_array, last_played_card_array) => {
   if (last_played_card_array.length === 0) {
-    // free turn
     return played_card_array;
   }
 
@@ -146,12 +139,10 @@ export const checkSingleCardCombo = (
 };
 
 // === double/triple card combos ===
-export const checkDoubleAndTripleCardCombo = (
+const checkDoubleAndTripleCardCombo = (
   played_card_array,
   last_played_card_array
 ) => {
-  console.log("played", played_card_array, "last", last_played_card_array);
-  // free move
   if (last_played_card_array.length === 0) {
     return checkIsDuplicateValue(played_card_array);
   }
@@ -171,45 +162,50 @@ export const checkDoubleAndTripleCardCombo = (
     ) {
       return false;
     } else {
-      const flat_cards = played_card_array.flat(last_played_card_array);
+      const flat_cards = played_card_array.concat(last_played_card_array);
       const largest_card = sortCards(flat_cards, "value")[
         flat_cards.length - 1
       ];
-      console.log("largest card", largest_card);
       return played_card_array.includes(largest_card);
     }
   }
 };
 
 // === 5 card combos ===
-export const checkIsStraight = (played_card_array) => {
+const checkIsStraight = (played_card_array) => {
   if (played_card_array.some((card) => getCardValue(card) === 2)) {
     return false; // cant have 2 in a straight
   }
   console.log("checking straight");
+  console.log(
+    played_card_array.every(
+      (num, i) =>
+        i === played_card_array.length - 1 || num < played_card_array[i + 1]
+    )
+  );
   return played_card_array.every(
     (num, i) =>
       i === played_card_array.length - 1 || num < played_card_array[i + 1]
   );
 };
 
-export const checkIsFlush = (played_card_array) => {
+const checkIsFlush = (played_card_array) => {
   console.log("is flush");
   const suit = getCardSuit(played_card_array[0]);
   return played_card_array.every((card) => getCardSuit(card) === suit);
 };
 
-export const checkIsFullHouse = (played_card_array) => {
+const checkIsFullHouse = (played_card_array) => {
   console.log("is full house");
   return false;
 };
 
-export const checkIsFourOfAKind = (played_card_array) => {
+const checkIsFourOfAKind = (played_card_array) => {
   console.log("is 4 of a kind");
   return checkIfDuplicateValueInCombo(played_card_array, 4);
 };
 
-export const checkIsValidFiveCardCombo = (played_card_array) => {
+const checkIsValidFiveCardCombo = (played_card_array) => {
   return (
     checkIsStraight(played_card_array) ||
     checkIsFlush(played_card_array) ||
@@ -218,13 +214,22 @@ export const checkIsValidFiveCardCombo = (played_card_array) => {
   );
 };
 
-export const checkFiveCardCombo = (
-  played_card_array,
-  last_played_card_array
-) => {
+const checkFiveCardCombo = (played_card_array, last_played_card_array) => {
   console.log("played", played_card_array, "last", last_played_card_array);
   // free move
   if (last_played_card_array.length === 0) {
     return checkIsValidFiveCardCombo(played_card_array);
   }
+  return checkIsValidFiveCardCombo(played_card_array);
+};
+
+module.exports = {
+  SUITS,
+  VALUES,
+  sortBySuit,
+  sortByValue,
+  sortCards,
+  checkSingleCardCombo,
+  checkDoubleAndTripleCardCombo,
+  checkFiveCardCombo,
 };

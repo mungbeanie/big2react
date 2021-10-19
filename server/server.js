@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
+const cardHelper = require("../src/CardDeck/ServerCardHelperFunctions");
+
 // const { Deck } = require("../src/CardDeck/CardDeck");
 const { Deck } = require("../src/CardDeck/CardDeck2");
 // const deck = new Deck();
@@ -81,17 +83,18 @@ io.on("connection", (socket) => {
         },
       });
     } else if (payload.type === "player_move") {
-      if (deck2.checkIsValidMove(payload.payload.cards, lastPlayed.cards)) {
+      const playedCards = cardHelper.sortCards(payload.payload.cards, "value");
+      if (deck2.checkIsValidMove(playedCards, lastPlayed.cards)) {
         lastPlayed = {
           player: payload.payload.player,
-          cards: payload.payload.cards,
+          cards: playedCards,
         }; // username or id?
-        deck2.discard(payload.payload.cards);
+        deck2.discard(playedCards);
         // updating cards for current player
         connectedSockets[[payload.payload.player]] = {
           ...connectedSockets[payload.payload.player],
           cards: connectedSockets[payload.payload.player].cards.filter(
-            (cards) => !payload.payload.cards.includes(cards)
+            (cards) => !playedCards.includes(cards)
           ),
         };
         // updating turn order
