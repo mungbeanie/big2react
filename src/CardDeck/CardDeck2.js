@@ -76,10 +76,6 @@ class Deck {
   }
 
   checkPlayedIsLarger(played_card_array, last_played_card_array) {
-    // if (last_played_card_array.length === 0) {
-    //   return true;
-    // }
-
     if (
       last_played_card_array.length === played_card_array.length ||
       last_played_card_array.length === 0

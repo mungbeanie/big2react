@@ -94,7 +94,6 @@ const parseCard = (card) => {
   }
 
   value = value.toUpperCase(); // values
-
   return { value: value, suit: suit, colour: colour };
 };
 
@@ -105,11 +104,14 @@ const checkIsDuplicateValue = (played_card_array) => {
 };
 
 const checkIfDuplicateValueInCombo = (played_card_array, num_of_duplicates) => {
+  // 3rd card (out of 5) will contain the quad value
   const counts = {};
-  played_card_array.forEach((card) => {
-    counts[card] = (counts[card] || 0) + 1;
+  played_card_array.forEach((x) => {
+    counts[getCardValue(x)] = (counts[getCardValue(x)] || 0) + 1;
   });
-  return counts > num_of_duplicates;
+  // returns counts = {[card_value]: count etc}
+  // if any of the card_value count pairs equals number of duplicates
+  return Object.values(counts).some((value) => value === num_of_duplicates);
 };
 
 // === single card combos ====
@@ -172,37 +174,94 @@ const checkDoubleAndTripleCardCombo = (
 };
 
 // === 5 card combos ===
+const returnLastCardByAttribute = (played_card_array, attribute) => {
+  if (attribute === "suit") {
+    return SUITS.indexOf(
+      getCardValue(played_card_array[played_card_array.length - 1])
+    );
+  }
+  // default is value
+  return VALUES.indexOf(
+    getCardValue(played_card_array[played_card_array.length - 1])
+  );
+};
+
 const checkIsStraight = (played_card_array) => {
   if (played_card_array.some((card) => getCardValue(card) === 2)) {
     return false; // cant have 2 in a straight
   }
-  console.log("checking straight");
-  console.log(
-    played_card_array.every(
-      (num, i) =>
-        i === played_card_array.length - 1 || num < played_card_array[i + 1]
-    )
-  );
-  return played_card_array.every(
-    (num, i) =>
-      i === played_card_array.length - 1 || num < played_card_array[i + 1]
+  const values_array = played_card_array.map((card) => getCardValue(card));
+  const index_values_array = values_array.map((value) => VALUES.indexOf(value));
+  return index_values_array.every(
+    (num, i) => (index_values_array[i + 1] || num + 1) - num === 1
   );
 };
 
 const checkIsFlush = (played_card_array) => {
-  console.log("is flush");
   const suit = getCardSuit(played_card_array[0]);
   return played_card_array.every((card) => getCardSuit(card) === suit);
 };
 
 const checkIsFullHouse = (played_card_array) => {
-  console.log("is full house");
-  return false;
+  // check for pair and triple
+  const values_array = played_card_array.map((card) => getCardValue(card));
+  const triple_then_pair =
+    // XXXYY
+    values_array.filter((value) => value === values_array[0]).length === 3 &&
+    values_array.filter(
+      (value) => value === values_array[values_array.length - 1]
+    ).length === 2;
+  const pair_then_triple =
+    //  YYXXXX
+    values_array.filter((value) => value === values_array[0]).length === 2 &&
+    values_array.filter(
+      (value) => value === values_array[values_array.length - 1]
+    ).length === 3;
+  return triple_then_pair || pair_then_triple;
+};
+
+const returnFullHouseCombo = (played_card_array) => {
+  // returns pair and triple
+  // could be XXYYY or YYXXX
+  // first 2 always the same because of sort
+  const first_combo = played_card_array.filter(
+    (card) => getCardValue(card) === getCardValue(played_card_array[0])
+  );
+
+  let double;
+  let triple;
+  if (first_combo.length === 2) {
+    double = first_combo[0]; // just need value
+    triple = getCardValue(played_card_array[played_card_array.length - 1]); // last value should be triple
+  } else {
+    triple = first_combo[0];
+    double = getCardValue(played_card_array[played_card_array.length - 1]); // last value should be double
+  }
+
+  return { double: double, triple: triple };
 };
 
 const checkIsFourOfAKind = (played_card_array) => {
-  console.log("is 4 of a kind");
   return checkIfDuplicateValueInCombo(played_card_array, 4);
+};
+
+const returnFourOfAKindCombo = (played_card_array) => {
+  // return value of quad
+  // could be XYYYY or YXXXX
+  const first_combo = played_card_array.filter(
+    (card) => getCardValue(card) === getCardValue(played_card_array[0])
+  );
+  let quad;
+  let single;
+  if (first_combo.length === 4) {
+    quad = first_combo[0]; // just need value
+    single = getCardValue(played_card_array[played_card_array.length - 1]); // last value should be single
+  } else {
+    single = first_combo[0];
+    quad = getCardValue(played_card_array[played_card_array.length - 1]); // last value should be quad
+  }
+
+  return { quad: quad, single: single };
 };
 
 const checkIsValidFiveCardCombo = (played_card_array) => {
@@ -214,13 +273,119 @@ const checkIsValidFiveCardCombo = (played_card_array) => {
   );
 };
 
+const returnFiveCardComboType = (played_card_array) => {
+  let type;
+  if (checkIsStraight(played_card_array) && checkIsFlush(played_card_array)) {
+    type = "straight flush";
+  } else if (checkIsStraight(played_card_array)) {
+    type = "straight";
+  } else if (checkIsFlush(played_card_array)) {
+    type = "flush";
+  } else if (checkIsFullHouse(played_card_array)) {
+    type = "full house";
+  } else if (checkIsFourOfAKind(played_card_array)) {
+    type = "four of a kind";
+  }
+  return type;
+};
+
+const returnIsFiveCardComboLarger = (
+  played_card_array,
+  last_played_card_array
+) => {
+  const combo_order = [
+    "straight",
+    "flush",
+    "full house",
+    "four of a kind",
+    "straight flush",
+  ];
+  const played_combo_type = returnFiveCardComboType(played_card_array);
+  const last_played_combo_type = returnFiveCardComboType(
+    last_played_card_array
+  );
+  console.log(`played ${played_combo_type} vs last ${last_played_combo_type}`);
+  if (
+    combo_order.indexOf(played_combo_type) ===
+    combo_order.indexOf(last_played_combo_type)
+  ) {
+    switch (played_combo_type) {
+      case "straight":
+        // value, then suit
+        if (
+          returnLastCardByAttribute(played_card_array, "value") ===
+          returnLastCardByAttribute(last_played_card_array, "value")
+        ) {
+          return (
+            returnLastCardByAttribute(played_card_array, "suit") >
+            returnLastCardByAttribute(last_played_card_array, "suit")
+          );
+        }
+        return (
+          returnLastCardByAttribute(played_card_array, "value") >
+          returnLastCardByAttribute(last_played_card_array, "value")
+        );
+      case "flush":
+        // suit, then value
+        if (
+          returnLastCardByAttribute(played_card_array, "suit") ===
+          returnLastCardByAttribute(last_played_card_array, "suit")
+        ) {
+          return (
+            returnLastCardByAttribute(played_card_array, "value") >
+            returnLastCardByAttribute(last_played_card_array, "value")
+          );
+        }
+        return (
+          returnLastCardByAttribute(played_card_array, "suit") >
+          returnLastCardByAttribute(last_played_card_array, "suit")
+        );
+      case "full house":
+        return (
+          returnFullHouseCombo(played_card_array).triple >
+          returnFullHouseCombo(last_played_card_array).triple
+        );
+      case "four of a kind":
+        return (
+          returnFourOfAKindCombo(played_card_array).quad >
+          returnFourOfAKindCombo(last_played_card_array).quad
+        );
+      case "straight flush":
+        // value, then suit
+        if (
+          returnLastCardByAttribute(played_card_array, "value") ===
+          returnLastCardByAttribute(last_played_card_array, "value")
+        ) {
+          return (
+            returnLastCardByAttribute(played_card_array, "suit") >
+            returnLastCardByAttribute(last_played_card_array, "suit")
+          );
+        }
+        return (
+          returnLastCardByAttribute(played_card_array, "value") >
+          returnLastCardByAttribute(last_played_card_array, "value")
+        );
+      default:
+        return false;
+    }
+  }
+
+  return (
+    combo_order.indexOf(played_combo_type) >
+    combo_order.indexOf(last_played_combo_type)
+  );
+};
+
 const checkFiveCardCombo = (played_card_array, last_played_card_array) => {
   console.log("played", played_card_array, "last", last_played_card_array);
   // free move
   if (last_played_card_array.length === 0) {
     return checkIsValidFiveCardCombo(played_card_array);
   }
-  return checkIsValidFiveCardCombo(played_card_array);
+  return (
+    checkIsValidFiveCardCombo(played_card_array) &&
+    returnIsFiveCardComboLarger(played_card_array, last_played_card_array)
+  );
 };
 
 module.exports = {

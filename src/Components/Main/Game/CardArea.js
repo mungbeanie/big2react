@@ -38,8 +38,11 @@ const CardArea = () => {
         <CardAreaHeader>Card Area</CardAreaHeader>
         {gameStore.lastPlayed.player && (
           <>
+            <CardAreaHeader>
+              {gameStore.players[gameStore.lastPlayed.player].username}
+            </CardAreaHeader>
             <CardAreaHeader>Just Played:</CardAreaHeader>
-            {gameStore.players[gameStore.lastPlayed.player].username}
+
             <JustPlayedContainer>
               {gameStore.lastPlayed.cards.map((card) => (
                 <Card key={card} card={card} isReadOnly />
