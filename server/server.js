@@ -18,7 +18,7 @@ const deck2 = new Deck();
 
 let connectedSockets = {};
 let clientIds = [];
-let turnOrder = [];
+let turnOrder = []; // bring in
 let startGame = false;
 let currentPlayer = "";
 let lastPlayed = { player: "", cards: [] };
@@ -76,12 +76,6 @@ io.on("connection", (socket) => {
       currentPlayer = Object.values(connectedSockets).find((player) =>
         player.cards.includes(deck2.getLowestCardInDeck())
       ).username;
-      io.emit("update_game", {
-        type: "update",
-        payload: {
-          gameState: getGameState(),
-        },
-      });
     } else if (payload.type === "player_move") {
       const playedCards = cardHelper.sortCards(payload.payload.cards, "value");
       if (deck2.checkIsValidMove(playedCards, lastPlayed.cards)) {
@@ -109,14 +103,28 @@ io.on("connection", (socket) => {
           // end of array, go to first id
           currentPlayer = connectedSockets[clientIds[0]].username;
         }
-        io.emit("update_game", {
-          type: "update",
-          payload: {
-            gameState: getGameState(),
-          },
-        });
+      }
+    } else if (payload.type === "player_pass") {
+      connectedSockets[[payload.payload.player]] = {
+        ...connectedSockets[payload.payload.player],
+        pass: true,
+      };
+      // updating turn order
+      const currentPlayerId = Object.values(connectedSockets).find(
+        (player) => player.username === currentPlayer
+      ).id;
+      let currentPlayerIdIndex = clientIds.indexOf(currentPlayerId);
+      if (clientIds[currentPlayerIdIndex + 1]) {
+        currentPlayer =
+          connectedSockets[clientIds[currentPlayerIdIndex + 1]].username;
       }
     }
+    io.emit("update_game", {
+      type: "update",
+      payload: {
+        gameState: getGameState(),
+      },
+    });
   });
 
   socket.on("disconnect", () => {

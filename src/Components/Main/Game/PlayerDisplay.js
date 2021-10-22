@@ -34,10 +34,14 @@ const PlayerDisplay = ({ player }) => {
     <div>
       <p>{player.username}</p>
       {gameStore.currentPlayer === userStore.username && <p>Your Turn</p>}
+      {gameStore.currentPlayer === userStore.username &&
+        gameStore.players[userStore.id].pass && <p>Passed</p>}
       <button onClick={() => setSortType("value")}>Sort by value</button>
       <button onClick={() => setSortType("suit")}>Sort by suit</button>
-      {selectedCards.length !== 0 &&
-        gameStore.currentPlayer === userStore.username && (
+
+      {gameStore.currentPlayer === userStore.username &&
+        selectedCards.length !== 0 &&
+        !gameStore.players[userStore.id].pass && (
           <div>
             <button
               onClick={() => {
@@ -51,6 +55,22 @@ const PlayerDisplay = ({ player }) => {
             </button>
           </div>
         )}
+      {gameStore.currentPlayer === userStore.username &&
+        !gameStore.players[userStore.id].pass && (
+          <div>
+            <button
+              onClick={() => {
+                socketStore.socket.emit("update_game", {
+                  type: "player_pass",
+                  payload: { player: player.id, pass: true },
+                });
+              }}
+            >
+              Pass
+            </button>
+          </div>
+        )}
+
       <PlayerContainer>
         {sortCards(player.cards, sortType).map((card) => (
           <Card
