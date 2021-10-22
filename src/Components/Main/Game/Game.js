@@ -11,6 +11,12 @@ import styled from "styled-components";
 import GameButtons from "./GameButtons";
 import GameDisplay from "./GameDisplay";
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
 const LoggedInSpan = styled.span`
   padding: 0 0.5rem;
 `;
@@ -40,7 +46,7 @@ const Game = () => {
 
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <Wrapper>
         <div>
           <LoggedInSpan>
             Logged in as:<LoggedInSpan>{userStore.username}</LoggedInSpan>
@@ -52,7 +58,7 @@ const Game = () => {
         <div>
           <GameDisplay />
         </div>
-      </div>
+      </Wrapper>
     </>
   );
 };
