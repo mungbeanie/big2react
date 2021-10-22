@@ -22,6 +22,7 @@ export const useGameStore = create((set, get) => ({
   startGame: false,
   currentPlayer: "",
   lastPlayed: { player: "", cards: [] },
+  turnNumber: 0,
   setState: (key, value) => set(() => ({ [key]: value })),
   updateState: (payload) =>
     set(() => ({
@@ -30,6 +31,7 @@ export const useGameStore = create((set, get) => ({
       startGame: payload.gameState.startGame,
       currentPlayer: payload.gameState.currentPlayer,
       lastPlayed: payload.gameState.lastPlayed,
+      turnNumber: payload.gameState.turnNumber,
     })),
 }));
 

@@ -116,9 +116,13 @@ class Deck {
     // return false;
   }
 
-  checkIsValidMove(played_card_array, last_played_card_array) {
-    if (last_played_card_array.length === 0) {
-      console.log("free move");
+  checkIsValidMove(played_card_array, last_played_card_array, turn_number) {
+    if (turn_number === 1 && last_played_card_array.length === 0) {
+      return (
+        played_card_array.includes(this.getLowestCardInDeck()) &&
+        this.checkPlayedIsInDeck(played_card_array) &&
+        this.checkPlayedIsLarger(played_card_array, last_played_card_array)
+      );
     }
     return (
       this.checkPlayedIsInDeck(played_card_array) &&

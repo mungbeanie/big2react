@@ -26,6 +26,21 @@ const PlayerDisplay = ({ player }) => {
   const [sortType, setSortType] = useState("value");
   const [selectedCards, setSelectedCards] = useState([]);
 
+  const canPass = () => {
+    return (
+      gameStore.currentPlayer === userStore.username &&
+      !gameStore.players[userStore.id].pass &&
+      gameStore.lastPlayed.cards.length !== 0
+    );
+  };
+
+  const canPlay = () => {
+    return (
+      gameStore.currentPlayer === userStore.username &&
+      !gameStore.players[userStore.id].pass
+    );
+  };
+
   useEffect(() => {
     setSelectedCards([]);
   }, [gameStore.lastPlayed]);
@@ -35,41 +50,40 @@ const PlayerDisplay = ({ player }) => {
       <p>{player.username}</p>
       {gameStore.currentPlayer === userStore.username && <p>Your Turn</p>}
       {gameStore.currentPlayer === userStore.username &&
+        gameStore.lastPlayed.cards.length === 0 && <p>Free Turn</p>}
+      {gameStore.currentPlayer === userStore.username &&
         gameStore.players[userStore.id].pass && <p>Passed</p>}
       <button onClick={() => setSortType("value")}>Sort by value</button>
       <button onClick={() => setSortType("suit")}>Sort by suit</button>
 
-      {gameStore.currentPlayer === userStore.username &&
-        selectedCards.length !== 0 &&
-        !gameStore.players[userStore.id].pass && (
-          <div>
-            <button
-              onClick={() => {
-                socketStore.socket.emit("update_game", {
-                  type: "player_move",
-                  payload: { player: player.id, cards: selectedCards },
-                });
-              }}
-            >
-              Play
-            </button>
-          </div>
-        )}
-      {gameStore.currentPlayer === userStore.username &&
-        !gameStore.players[userStore.id].pass && (
-          <div>
-            <button
-              onClick={() => {
-                socketStore.socket.emit("update_game", {
-                  type: "player_pass",
-                  payload: { player: player.id, pass: true },
-                });
-              }}
-            >
-              Pass
-            </button>
-          </div>
-        )}
+      <div>
+        <button
+          disabled={!canPlay()}
+          onClick={() => {
+            selectedCards.length !== 0 &&
+              socketStore.socket.emit("update_game", {
+                type: "player_move",
+                payload: { player: player.id, cards: selectedCards },
+              });
+          }}
+        >
+          Play
+        </button>
+      </div>
+
+      <div>
+        <button
+          disabled={!canPass()}
+          onClick={() => {
+            socketStore.socket.emit("update_game", {
+              type: "player_pass",
+              payload: { player: player.id, pass: true },
+            });
+          }}
+        >
+          Pass
+        </button>
+      </div>
 
       <PlayerContainer>
         {sortCards(player.cards, sortType).map((card) => (

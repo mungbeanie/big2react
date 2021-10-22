@@ -10,7 +10,7 @@ const CardAreaHeader = styled.div`
 `;
 
 const CardAreaSurface = styled.div`
-  width: 100vw;
+  min-width: 80vw;
   min-height: 50vh;
   padding: 1rem;
   background: green;
@@ -36,6 +36,16 @@ const CardArea = () => {
     <>
       <CardAreaSurface>
         <CardAreaHeader>Card Area</CardAreaHeader>
+
+        {Object.values(gameStore.players).map((player) => (
+          <div key={player + player.username}>
+            <p>{player.username}</p>
+            {player.pass && <p>Passed</p>}
+            <p>Cards Remaining: {player.cards.length}</p>
+          </div>
+        ))}
+
+        <CardAreaHeader>Turn: {gameStore.turnNumber}</CardAreaHeader>
         {gameStore.lastPlayed.player && (
           <>
             <CardAreaHeader>

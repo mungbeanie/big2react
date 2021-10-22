@@ -190,8 +190,9 @@ const checkIsStraight = (played_card_array) => {
   if (played_card_array.some((card) => getCardValue(card) === 2)) {
     return false; // cant have 2 in a straight
   }
-  const values_array = played_card_array.map((card) => getCardValue(card));
-  const index_values_array = values_array.map((value) => VALUES.indexOf(value));
+  const index_values_array = played_card_array.map((card) =>
+    VALUES.indexOf(getCardValue(card))
+  );
   return index_values_array.every(
     (num, i) => (index_values_array[i + 1] || num + 1) - num === 1
   );
@@ -231,11 +232,15 @@ const returnFullHouseCombo = (played_card_array) => {
   let double;
   let triple;
   if (first_combo.length === 2) {
-    double = first_combo[0]; // just need value
-    triple = getCardValue(played_card_array[played_card_array.length - 1]); // last value should be triple
+    double = VALUES.indexOf(getCardValue(first_combo[0])); // just need value
+    triple = VALUES.indexOf(
+      getCardValue(played_card_array[played_card_array.length - 1])
+    ); // last value should be triple
   } else {
-    triple = first_combo[0];
-    double = getCardValue(played_card_array[played_card_array.length - 1]); // last value should be double
+    triple = VALUES.indexOf(getCardValue(first_combo[0]));
+    double = VALUES.indexOf(
+      getCardValue(played_card_array[played_card_array.length - 1])
+    ); // last value should be double
   }
 
   return { double: double, triple: triple };
@@ -254,11 +259,15 @@ const returnFourOfAKindCombo = (played_card_array) => {
   let quad;
   let single;
   if (first_combo.length === 4) {
-    quad = first_combo[0]; // just need value
-    single = getCardValue(played_card_array[played_card_array.length - 1]); // last value should be single
+    quad = VALUES.indexOf(first_combo[0]); // just need value
+    single = VALUES.indexOf(
+      getCardValue(played_card_array[played_card_array.length - 1])
+    ); // last value should be single
   } else {
-    single = first_combo[0];
-    quad = getCardValue(played_card_array[played_card_array.length - 1]); // last value should be quad
+    single = VALUES.indexOf(first_combo[0]);
+    quad = VALUES.indexOf(
+      getCardValue(played_card_array[played_card_array.length - 1])
+    ); // last value should be quad
   }
 
   return { quad: quad, single: single };
