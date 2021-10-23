@@ -25,6 +25,7 @@ const PlayerDisplay = ({ player }) => {
 
   const [sortType, setSortType] = useState("value");
   const [selectedCards, setSelectedCards] = useState([]);
+  const [move, setMove] = useState({ move: null });
 
   const canPass = () => {
     return (
@@ -45,12 +46,17 @@ const PlayerDisplay = ({ player }) => {
     setSelectedCards([]);
   }, [gameStore.lastPlayed]);
 
+  useEffect(() => {
+    setMove({ move: null });
+  }, [gameStore.turnNumber]);
+
   return (
     <div>
       <p>{player.username}</p>
       {gameStore.currentPlayer === userStore.username && <p>Your Turn</p>}
       {gameStore.currentPlayer === userStore.username &&
         gameStore.lastPlayed.cards.length === 0 && <p>Free Turn</p>}
+      {move.move === "invalid" && <p>{move.move} move</p>}
       {gameStore.currentPlayer === userStore.username &&
         gameStore.players[userStore.id].pass && <p>Passed</p>}
       <button onClick={() => setSortType("value")}>Sort by value</button>
@@ -61,10 +67,16 @@ const PlayerDisplay = ({ player }) => {
           disabled={!canPlay()}
           onClick={() => {
             selectedCards.length !== 0 &&
-              socketStore.socket.emit("update_game", {
-                type: "player_move",
-                payload: { player: player.id, cards: selectedCards },
-              });
+              socketStore.socket.emit(
+                "update_game",
+                {
+                  type: "player_move",
+                  payload: { player: player.id, cards: selectedCards },
+                },
+                (response) => {
+                  setMove(response);
+                }
+              );
           }}
         >
           Play

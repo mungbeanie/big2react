@@ -15,6 +15,7 @@ const GameButtons = () => {
           Play
         </button>
       )}
+      {gameStore.endGameCondition && <h1>{gameStore.endGameCondition}</h1>}
     </>
   );
 };

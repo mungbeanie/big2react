@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 const ENDPOINT = "http://localhost:5000";
 const socketOptions = { transports: ["websocket", "polling"] };
 
-export const useSocketStore = create((set, get) => ({
+export const useSocketStore = create((set) => ({
   endpoint: ENDPOINT,
   socket: "",
   establishSocket: () =>
@@ -16,13 +16,14 @@ export const useSocketStore = create((set, get) => ({
     })),
 }));
 
-export const useGameStore = create((set, get) => ({
+export const useGameStore = create((set) => ({
   clientIds: [],
   players: {},
   startGame: false,
   currentPlayer: "",
   lastPlayed: { player: "", cards: [] },
   turnNumber: 0,
+  endGameCondition: null,
   setState: (key, value) => set(() => ({ [key]: value })),
   updateState: (payload) =>
     set(() => ({
@@ -32,10 +33,11 @@ export const useGameStore = create((set, get) => ({
       currentPlayer: payload.gameState.currentPlayer,
       lastPlayed: payload.gameState.lastPlayed,
       turnNumber: payload.gameState.turnNumber,
+      endGameCondition: payload.gameState.endGameCondition,
     })),
 }));
 
-export const useUserStore = create((set, get) => ({
+export const useUserStore = create((set) => ({
   username: "",
   id: "",
   setState: (key, value) => set(() => ({ [key]: value })),

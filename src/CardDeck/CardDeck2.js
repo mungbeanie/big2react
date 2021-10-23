@@ -49,6 +49,11 @@ class Deck {
     return dealt_cards_obj;
   }
 
+  reset() {
+    this.cards = freshDeck();
+    this.discards = [];
+  }
+
   shuffle() {
     for (let i = this.numberOfCards - 1; i > 0; i--) {
       const newIndex = Math.floor(Math.random() * (i + 1));

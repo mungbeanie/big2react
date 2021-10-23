@@ -1,4 +1,4 @@
-import { useGameStore } from "../../../Stores/stores";
+import { useGameStore, useSocketStore } from "../../../Stores/stores";
 
 import ConnectedPlayers from "./ConnectedPlayers";
 import CardArea from "./CardArea";
